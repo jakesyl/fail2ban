@@ -58,6 +58,7 @@ class Server:
 		# Set logging level
 		self.setLogLevel("INFO")
 		self.setLogTarget("STDOUT")
+		self.syslog_socket = "%(syslog_socket)s"
 	
 	def __sigTERMhandler(self, signum, frame):
 		logSys.debug("Caught signal %d. Exiting" % signum)
@@ -367,7 +368,7 @@ class Server:
 	# target can be a file, SYSLOG, STDOUT or STDERR.
 	# @param target the logging target
 	
-	def setLogTarget(self, target):
+	def setLogTarget(self, target, syslog_socket=None):
 		try:
 			self.__loggingLock.acquire()
 			# set a format which is simpler for console use
@@ -376,7 +377,7 @@ class Server:
 				# Syslog daemons already add date to the message.
 				formatter = logging.Formatter("%(name)s[%(process)d]: %(levelname)s %(message)s")
 				facility = logging.handlers.SysLogHandler.LOG_DAEMON
-				hdlr = logging.handlers.SysLogHandler("/dev/log", facility=facility)
+				hdlr = logging.handlers.SysLogHandler(syslog_socket, facility=facility)
 			elif target == "STDOUT":
 				hdlr = logging.StreamHandler(sys.stdout)
 			elif target == "STDERR":
